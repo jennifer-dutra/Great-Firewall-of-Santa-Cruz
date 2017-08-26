@@ -65,7 +65,7 @@ listNode *findLL(listNode **n, const char *old)
     seeks++;
     if (strcmp(t -> oldspeak, old) == 0) // if the word is in the list
     {
-      if(moveToFront && previous != NIL) // if moveToFront has been turned on
+      if(moveToFront && t -> next != NIL) // if moveToFront has been turned on
       {
         while(t -> next != NIL) // move word until it is at the front of LL
         {

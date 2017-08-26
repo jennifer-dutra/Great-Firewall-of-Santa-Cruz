@@ -5,17 +5,17 @@
 LET [A-Za-z_]
 DIG [0-9]
 WS [ \t\r\n]
-PUNC   [~‘!@#$%^&*()_+-={}|\\\[\]:;\"\’<>,./?]
+PUNC [~‘!@#$%^&*()_+-={}|\\\[\]:;\"\ ’ < > ,./?]
 
 %%
 
-{LET}+                  { return 0;}
-{LET}+"’"({LET}|{LET}{LET}) { return 0; }
-{LET}+{DIG}+          { return 0; }
-{PUNC}+                 {}
-{WS}+                   {}
-<<EOF>>               { return -1; }
-.                 {}
+{LET}+ { return 0; }
+{LET}+"'"({LET}|{LET}{LET}) { return 0; }
+{LET}+{DIG}+	{ return 0; }
+{PUNC}+ {}
+{WS}+ {}
+<<EOF>> { return -1; }
+. 	{}
 
 %%
 

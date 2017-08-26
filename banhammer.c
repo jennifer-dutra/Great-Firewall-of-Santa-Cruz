@@ -162,8 +162,8 @@ void printStats(bloomF *f1, bloomF *f2)
   float average = (float)seeks/findCall;
   float density1 = (float)countBF(f1)/lenBF(f1);
   float density2 = (float)countBF(f2)/lenBF(f2);
-  printf("\nSeeks %d, Average %f, Translations %d, Dictionary %d, Text %d,", seeks, average, translations, dictionary, text);
-  printf(" Densities: %f, %f\n", density1, density2);
+  printf("\nSeeks: %d, Average: %f, Translations: %d, Dictionary: %d, Text: %d", seeks, average, translations, dictionary, text);
+  printf("\nDensities: %f, %f\n", density1, density2);
 }
 
 
@@ -175,18 +175,6 @@ int main(int argc, char *argv[])
   uint32_t crimeCommitted = FALSE;    // if text included forbidden words
   uint32_t foundTranslations = FALSE; // if words used have translations
   int c;                              // for option flags
-
-  // Salts
-  uint32_t initA[] = {0xDeadD00d, 0xFadedBee, 0xBadAb0de, 0xC0c0aB0a}; // First Bloom filter
-  uint32_t initB[] = {0xDeadBeef, 0xFadedB0a, 0xCafeD00d, 0xC0c0aB0a}; // Second Bloom filter
-  uint32_t initH[] = {0xDeadD00d, 0xFadedBee, 0xBadAb0de, 0xC0c0Babe}; // Hash table
-
-  bloomF *f1 = newBF(bfSize, initA);
-  bloomF *f2 = newBF(bfSize, initB);
-  hashTable *h = newHT(htSize, initH);
-
-  listNode *thoughtCrime = NIL; // list of words with no translation
-  listNode *goodSpeak = NIL;    // list of words with translation
 
   // User option flags
   while ((c = getopt (argc, argv, "sh:f:mb")) != -1)
@@ -221,6 +209,15 @@ int main(int argc, char *argv[])
     }
   }
 
+  // Salts
+  uint32_t initA[] = {0xDeadD00d, 0xFadedBee, 0xBadAb0de, 0xC0c0aB0a}; // First Bloom filter
+  uint32_t initB[] = {0xDeadBeef, 0xFadedB0a, 0xCafeD00d, 0xC0c0aB0a}; // Second Bloom filter
+  uint32_t initH[] = {0xDeadD00d, 0xFadedBee, 0xBadAb0de, 0xC0c0Babe}; // Hash table
+
+  bloomF *f1 = newBF(bfSize, initA);
+  bloomF *f2 = newBF(bfSize, initB);
+  hashTable *h = newHT(htSize, initH);
+
   // Load dictionaries for approved and forbidden words
   loadBadspeak(f1, f2, h);
   loadTranslations(f1, f2, h);
@@ -237,6 +234,9 @@ int main(int argc, char *argv[])
   int tokenID = 0;
   yyin = stdin;
 
+  listNode *thoughtCrime = NIL; // list of words read in with no translation
+  listNode *goodSpeak = NIL;    // list of words read in with translation
+
   while(tokenID != -1)
 	{
     text++;
@@ -250,8 +250,6 @@ int main(int argc, char *argv[])
     {
       userInput[i] = tolower(userInput[i]);
     }
-
-    // printf("%s\n", userInput); // TESTING words are being split on punctuation
 
     if(memBF(f1, userInput) && memBF(f2, userInput)) // word is member of both bloom filters
     {
@@ -267,7 +265,6 @@ int main(int argc, char *argv[])
         thoughtCrime = insertLL(&thoughtCrime, word -> oldspeak, word -> newspeak); // store word in linked list
       }
     }
-    // get program to end taking in input from terminal-- have to ctrl d to get print
 	}
 
   printf("\nText analyzed.\n");
